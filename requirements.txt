@@ -1,0 +1,4 @@
+scikit-learn
+python_speech_features
+pandas
+matplotlib
