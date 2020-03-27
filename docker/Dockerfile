@@ -19,3 +19,4 @@ RUN cd tmp/cmake-3.17.0 && ./bootstrap && make -j4 && make install
 RUN git clone https://github.com/microsoft/SEAL.git
 RUN cd /SEAL && cd native/src/ &&  cmake . && make && make install
 RUN cd /SEAL && cd native/examples/ &&  cmake . && make
+WORKDIR /SEAL
