@@ -26,9 +26,9 @@ RUN apt-get update && apt-get install -y \
   && apt-get clean
 
 RUN apt-get purge cmake
-RUN cd /tmp && wget https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0.tar.gz
-RUN cd /tmp && tar -xzvf cmake-3.17.0.tar.gz
-RUN cd tmp/cmake-3.17.0 && ./bootstrap && make -j4 && make install
+RUN cd /tmp && wget https://github.com/Kitware/CMake/releases/download/v3.16.5/cmake-3.16.5.tar.gz
+RUN cd /tmp && tar -xzvf cmake-3.16.5.tar.gz
+RUN cd tmp/cmake-3.16.5 && ./bootstrap && make -j4 && make install
 
 
 
