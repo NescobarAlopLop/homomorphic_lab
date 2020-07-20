@@ -12,11 +12,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn_porter import Porter
 import numpy as np
 
-# file_names = os.listdir('.')  # list of file names
 file_names = [f for f in os.listdir('./cats_dogs') if os.path.isfile(os.path.join('./cats_dogs', f))]
 final_dataset = pd.DataFrame()  # Blank initial dataset
 
-# Feature Extraction
 for i in file_names:
     rate, signal = sw.read(os.path.join('./cats_dogs', i))
     features = psf.base.mfcc(signal=signal, samplerate=rate, preemph=1.1, nfilt=26, numcep=13)
@@ -62,27 +60,34 @@ X_train = pd.DataFrame(X_train)
 # y_train = pd.DataFrame(y_train)
 X_test = pd.DataFrame(X_test)
 
-# preprocessed_dataset = pd.DataFrame()
-# preprocessed_dataset = preprocessed_dataset.append(X_train, y_train)
-# preprocessed_dataset = preprocessed_dataset.append(X_train, X_train)
-
 print(y_test.values[0:18])
 
 
-for kernel in ['linear', 'poly', 'rbf', 'sigmoid']:
-    model = svm.SVC(C=1.0, kernel=kernel, degree=3, gamma=1.0/26, coef0=0.0, shrinking=True, probability=False,
+for kernel in [
+    'linear',
+    'poly',
+    'rbf',
+    'sigmoid',
+]:
+    model = svm.SVC(C=1.0, kernel=kernel,
+                    degree=3,
+                    gamma=1.0/26,
+                    # gamma='auto',
+                    coef0=0.0, shrinking=True, probability=False,
                     tol=0.001, cache_size=200, class_weight=None, verbose=False, max_iter=-1,
                     decision_function_shape='ovr', break_ties=False, random_state=None)
+
     model.fit(X_train, y_train)
-    # model.support_vectors_ = np.around(model.support_vectors_, decimals=2)
-    # model.intercept_ = np.around(model.intercept_, decimals=2)
-    # model.dual_coef_ = np.around(model.dual_coef_, decimals=2)
+    model.support_vectors_ = np.around(model.support_vectors_, decimals=2)
+    model.intercept_ = np.around(model.intercept_, decimals=2)
+    model.dual_coef_ = np.around(model.dual_coef_, decimals=2)
     model.score(X_train, y_train)
     predicted = model.predict(X_test)
     acc_score = accuracy_score(y_test, predicted)
     print(f'\nacc_score: {acc_score}')
 
     # Export:
+    # c
     porter = Porter(model, language='c')
     output = porter.export(embed_data=True)
     # print(output)
@@ -91,18 +96,30 @@ for kernel in ['linear', 'poly', 'rbf', 'sigmoid']:
         f.write(output)
     sleep(1)
 
+    # js
+    porter = Porter(model, language='js')
+    output = porter.export(embed_data=True)
+    # print(output)
+    print(f'saving js code')
+    with open(f'./porter_out/svc_{kernel}.js', 'w+') as f:
+        f.write(output)
+    sleep(1)
+
     print('compiling svc')
     os.system(f'gcc ./porter_out/svc_{kernel}.c -std=c99 -lm -o ./porter_out/svc_{kernel}.o')
     sleep(1)
-    print('run svc for all test inputs, kernel {}'.format(kernel))
+    print('run svc for all test inputs, kernel: {}'.format(kernel))
     print('c: result\t\t', end='')
     for test in X_test.values:
-        features_str = f'{test}'.replace('\n', '')
-        call([f'./porter_out/svc_{kernel}.o', f'{features_str}'])
+        call_array = [f'./porter_out/svc_{kernel}.o'] + list(map(str, np.around(test, decimals=2)))
+        call(call_array)
 
     print('\npython result:\t', end='')
     print("".join([f'{x}' for x in predicted]))
 
-    print('true value:\t\t', end='')
+    print('\ntrue value:\t\t', end='')
     print("".join([f'{x}' for x in y_test]))
 
+    print(f'\n./porter_out/svc_{kernel}.o {call_array}')
+
+print(model)
