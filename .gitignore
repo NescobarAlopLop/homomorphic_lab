@@ -21,3 +21,5 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+/server/bin/
+/server/cmake-build-debug/
