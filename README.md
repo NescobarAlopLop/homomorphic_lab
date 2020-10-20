@@ -72,3 +72,25 @@ print('Coefficients of the support vector in the decision function = ', np.abs(c
 ``` 
 
 after training the model 
+
+no need to generate cpp code, model can be loaded from text file stored on server or passed as
+argument by managing python script.
+
+need to read up on serialization and transfer of public key and encrypted model
+
+next steps as i see them now are:
+client:
+    - generate keys
+    - encrypt query
+    - send public key and encrypted query to server
+    
+server:
+    - encrypt with public keys the model weights
+    - run computation
+    - return encrypted result and class definition function (class 0 if less than 0 class 1 otherwise)
+    
+client:
+    - decrypt received results
+    - evaluate according to classification function
+    
+ 
