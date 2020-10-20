@@ -20,6 +20,8 @@
 #include <thread>
 #include <vector>
 
+void multiply_vectors();
+void example_rotation_ckks();
 void example_encoders2();
 void example_integer_encoder();
 void example_batch_encoder();

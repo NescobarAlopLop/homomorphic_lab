@@ -12,7 +12,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn_porter import Porter
 import numpy as np
 
-file_names = [f for f in os.listdir('./cats_dogs') if os.path.isfile(os.path.join('./cats_dogs', f))]
+file_names = [
+    file_path
+    for file_path in os.listdir('./cats_dogs') if os.path.isfile(os.path.join('./cats_dogs', file_path))
+]
 final_dataset = pd.DataFrame()  # Blank initial dataset
 
 for i in file_names:
@@ -32,13 +35,12 @@ for i in file_names:
 # Correcting indexing
 index = 26
 for i in range(0, len(final_dataset)):
-    final_dataset.iloc[i, index] = final_dataset.iloc[i, index].replace('.wav', '')
-    final_dataset.iloc[i, index] = re.sub(r'[0-9]+', '', final_dataset.iloc[i, index])
-    final_dataset.iloc[i, index] = final_dataset.iloc[i, index].replace('_', '')
-    final_dataset.iloc[i, index] = final_dataset.iloc[i, index].replace('barking', '0')
-    final_dataset.iloc[i, index] = final_dataset.iloc[i, index].replace('cat', '1')
-    final_dataset.iloc[i, index] = final_dataset.iloc[i, index].replace('dog', '0')
-    final_dataset.iloc[i, index] = final_dataset.iloc[i, index].replace('00', '0')
+    if 'dog' in final_dataset.iloc[i, index]:
+        final_dataset.iloc[i, index] = '0'
+    elif 'cat' in final_dataset.iloc[i, index]:
+        final_dataset.iloc[i, index] = '1'
+    else:
+        raise ValueError(f'Unsupported animal class {final_dataset.iloc[i, index]}')
 
 # Finalize dataset with the attributes and target
 # final_dataset.rename(columns={'y': 'target'})
@@ -65,11 +67,11 @@ print(y_test.values[0:18])
 
 for kernel in [
     'linear',
-    'poly',
-    'rbf',
-    'sigmoid',
+    # 'poly',
+    # 'rbf',
+    # 'sigmoid',
 ]:
-    model = svm.SVC(C=1.0, kernel=kernel,
+    model = svm.SVC(C=10.0, kernel=kernel,
                     degree=3,
                     gamma=1.0/26,
                     # gamma='auto',
@@ -123,3 +125,6 @@ for kernel in [
     print(f'\n./porter_out/svc_{kernel}.o {call_array}')
 
 print(model)
+print(model.support_vectors_)
+print(model.support_vectors_.shape)
+print(type(model.support_vectors_))

@@ -6,6 +6,154 @@
 using namespace std;
 using namespace seal;
 
+
+void multiply_vectors() {
+    EncryptionParameters encryption_parameters(scheme_type::CKKS);
+
+    std::size_t poly_modulus_degree = 8192;
+    encryption_parameters.set_poly_modulus_degree(poly_modulus_degree);
+    auto bit_sizes = {40, 40, 40, 40, 40};
+    auto coefficient_modulus_degree = CoeffModulus::Create(poly_modulus_degree, bit_sizes);
+    encryption_parameters.set_coeff_modulus(coefficient_modulus_degree);
+
+    auto context = SEALContext::Create(encryption_parameters);
+    print_parameters(context);
+    print_line(__LINE__);
+
+    KeyGenerator key_generator(context);
+    auto public_key = key_generator.public_key();
+    auto secret_key = key_generator.secret_key();
+    auto relin_keys = key_generator.relin_keys_local();
+    auto galois_keys = key_generator.galois_keys_local();
+
+    Encryptor encryptor(context, public_key);
+    Evaluator evaluator(context);
+    Decryptor decryptor(context, secret_key);
+
+    CKKSEncoder ckks_encoder(context);
+
+    size_t slot_count = ckks_encoder.slot_count();
+    cout << "number of slots: " << slot_count << ", should be half of the size of poly modulus degree" << endl;
+
+    vector<double> model_weights{0.25, -0.25};
+    vector<double> query{-5, -3};
+    cout << "Input vector:" << endl;
+    print_vector(model_weights);
+
+    Plaintext model_weights_plain_text;
+    Plaintext query_plain_text;
+    double scale = pow(2, 40);
+    print_line(__LINE__);
+
+    ckks_encoder.encode(model_weights, scale, model_weights_plain_text);
+    ckks_encoder.encode(query, scale, query_plain_text);
+
+    Ciphertext encrypted_weights;
+    Ciphertext encrypted_query;
+    encryptor.encrypt(model_weights_plain_text, encrypted_weights);
+    encryptor.encrypt(query_plain_text, encrypted_query);
+
+    Ciphertext encrypted_multiplication_result;
+    evaluator.multiply(encrypted_weights, encrypted_query, encrypted_multiplication_result);
+    evaluator.relinearize_inplace(encrypted_multiplication_result, relin_keys);
+    evaluator.rescale_to_next_inplace(encrypted_multiplication_result);
+
+    Ciphertext temp_encrypted;
+    evaluator.rotate_vector(encrypted_multiplication_result, 1, galois_keys, temp_encrypted);
+
+    Plaintext temp_plain;
+    decryptor.decrypt(temp_encrypted, temp_plain);
+
+    vector<double> output;
+    ckks_encoder.decode(temp_plain, output);
+    print_vector(output);
+    print_line(__LINE__);
+
+    vector<Ciphertext> rotations_output(encrypted_multiplication_result.size());
+    for(int steps = 0; steps < encrypted_multiplication_result.size(); steps++)
+    {
+        evaluator.rotate_vector(encrypted_multiplication_result, steps, galois_keys, rotations_output[steps]);
+    }
+    Ciphertext sum_output;
+    evaluator.add_many(rotations_output, sum_output);
+
+    Plaintext final;
+    decryptor.decrypt(sum_output, final);
+    vector<double> sum;
+    ckks_encoder.decode(final, sum);
+    cout << "FREAKING RESULT " << endl;
+    print_vector(sum);
+    print_line(__LINE__);
+}
+
+void example_rotation_ckks()
+{
+    print_example_banner("Example: Rotation / Rotation in CKKS");
+
+    /*
+    Rotations in the CKKS scheme work very similarly to rotations in BFV.
+    */
+    EncryptionParameters parms(scheme_type::CKKS);
+
+    size_t poly_modulus_degree = 8192;
+    parms.set_poly_modulus_degree(poly_modulus_degree);
+    parms.set_coeff_modulus(CoeffModulus::Create(poly_modulus_degree, { 40, 40, 40, 40, 40 }));
+
+    auto context = SEALContext::Create(parms);
+    print_parameters(context);
+    cout << endl;
+
+    KeyGenerator keygen(context);
+    PublicKey public_key = keygen.public_key();
+    SecretKey secret_key = keygen.secret_key();
+    RelinKeys relin_keys = keygen.relin_keys_local();
+    GaloisKeys gal_keys = keygen.galois_keys_local();
+    Encryptor encryptor(context, public_key);
+    Evaluator evaluator(context);
+    Decryptor decryptor(context, secret_key);
+
+    CKKSEncoder ckks_encoder(context);
+
+    size_t slot_count = ckks_encoder.slot_count();
+    cout << "Number of slots: " << slot_count << endl;
+    vector<double> input;
+    input.reserve(slot_count);
+    double curr_point = 0;
+    double step_size = 1.0 / (static_cast<double>(slot_count) - 1);
+    for (size_t i = 0; i < slot_count; i++, curr_point += step_size)
+    {
+        input.push_back(curr_point);
+    }
+    cout << "Input vector:" << endl;
+    print_vector(input, 3, 7);
+
+    auto scale = pow(2.0, 50);
+
+    print_line(__LINE__);
+    cout << "Encode and encrypt." << endl;
+    Plaintext plain;
+    ckks_encoder.encode(input, scale, plain);
+    Ciphertext encrypted;
+    encryptor.encrypt(plain, encrypted);
+
+    Ciphertext rotated;
+    print_line(__LINE__);
+    cout << "Rotate 2 steps left." << endl;
+
+    evaluator.rotate_vector(encrypted, 2, gal_keys, rotated);
+    cout << "    + Decrypt and decode ...... Correct." << endl;
+    decryptor.decrypt(rotated, plain);
+    vector<double> result;
+    ckks_encoder.decode(plain, result);
+    print_vector(result, 3, 7);
+
+    /*
+    With the CKKS scheme it is also possible to evaluate a complex conjugation on
+    a vector of encrypted complex numbers, using Evaluator::complex_conjugate.
+    This is in fact a kind of rotation, and requires also Galois keys.
+    */
+}
+
 /*
 In `1_bfv_basics.cpp' we showed how to perform a very simple computation using the
 BFV scheme. The computation was performed modulo the plain_modulus parameter, and

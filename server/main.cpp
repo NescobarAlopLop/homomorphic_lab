@@ -9,6 +9,7 @@ using namespace seal;
 int main()
 {
     cout << "Microsoft SEAL version: " << SEAL_VERSION << endl;
+
     while (true)
     {
         cout << "+------------------------------------------------------------+" << endl;
@@ -24,6 +25,8 @@ int main()
         cout << "| 4 ckks encoder             | example_ckks_encoder.cpp      |" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
         cout << "| 5 predict                  | predict                       |" << endl;
+        cout << "+----------------------------+-------------------------------+" << endl;
+        cout << "| 6 multiply vectors         | multiply vectors              |" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
         cout << "| 0 Exit                     |                               |" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
@@ -60,6 +63,12 @@ int main()
                 break;
             case 5:
                 predict();
+            case 6:
+                multiply_vectors();
+                break;
+            case 7:
+                example_rotation_ckks();
+                break;
             case 0:
                 return 0;
             default:
