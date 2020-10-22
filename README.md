@@ -59,7 +59,7 @@ X = np.array([[3, 4], [1, 4], [2, 3], [6, -1], [7, -1], [5, -3]])
 y = np.array([-1, -1, -1, 1, 1, 1])
 
 clf = SVC(C=1e5, kernel='linear')
-clf.fit(X, y)
+clf.fit(X, y    )
 
 w = clf.coef_
 b = clf.intercept_
@@ -79,6 +79,14 @@ argument by managing python script.
 need to read up on serialization and transfer of public key and encrypted model
 
 next steps as i see them now are:
+
+results first approach, first only create client server as different executables on same machine
+save all the relevant data into files and w/r them locally
+
+so in the following algorithm:
+- send - save as a local file
+- receive - read file
+
 client:
     - generate keys
     - encrypt query
@@ -93,4 +101,6 @@ client:
     - decrypt received results
     - evaluate according to classification function
     
+ add masking for result vector:
+ https://github.com/microsoft/SEAL/issues/64
  
