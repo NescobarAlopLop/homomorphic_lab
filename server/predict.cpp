@@ -36,7 +36,7 @@ void multiply_vectors() {
     cout << "number of slots: " << slot_count << ", should be half of the size of poly modulus degree" << endl;
 
     vector<double> model_weights{0.25, -0.25};
-    vector<double> query{-5, -3};
+    vector<double> query{50, -3};
     cout << "Input vector:" << endl;
     print_vector(model_weights);
 
@@ -86,72 +86,146 @@ void multiply_vectors() {
     print_line(__LINE__);
 }
 
-void example_rotation_ckks()
-{
-    print_example_banner("Example: Rotation / Rotation in CKKS");
 
-    /*
-    Rotations in the CKKS scheme work very similarly to rotations in BFV.
-    */
-    EncryptionParameters parms(scheme_type::CKKS);
+void multiply_vectors_serialization_test() {
+    // setup streams in future files, then network connection
+    stringstream parms_stream;
+    stringstream data_stream;
+    stringstream sk_stream;
 
-    size_t poly_modulus_degree = 8192;
-    parms.set_poly_modulus_degree(poly_modulus_degree);
-    parms.set_coeff_modulus(CoeffModulus::Create(poly_modulus_degree, { 40, 40, 40, 40, 40 }));
 
-    auto context = SEALContext::Create(parms);
-    print_parameters(context);
-    cout << endl;
-
-    KeyGenerator keygen(context);
-    PublicKey public_key = keygen.public_key();
-    SecretKey secret_key = keygen.secret_key();
-    RelinKeys relin_keys = keygen.relin_keys_local();
-    GaloisKeys gal_keys = keygen.galois_keys_local();
-    Encryptor encryptor(context, public_key);
-    Evaluator evaluator(context);
-    Decryptor decryptor(context, secret_key);
-
-    CKKSEncoder ckks_encoder(context);
-
-    size_t slot_count = ckks_encoder.slot_count();
-    cout << "Number of slots: " << slot_count << endl;
-    vector<double> input;
-    input.reserve(slot_count);
-    double curr_point = 0;
-    double step_size = 1.0 / (static_cast<double>(slot_count) - 1);
-    for (size_t i = 0; i < slot_count; i++, curr_point += step_size)
+    // server code:
     {
-        input.push_back(curr_point);
+        EncryptionParameters encryption_parameters(scheme_type::CKKS);
+        std::size_t poly_modulus_degree = 8192;
+        encryption_parameters.set_poly_modulus_degree(poly_modulus_degree);
+        auto bit_sizes = {40, 40, 40, 40, 40};
+        auto coefficient_modulus_degree = CoeffModulus::Create(poly_modulus_degree, bit_sizes);
+        encryption_parameters.set_coeff_modulus(coefficient_modulus_degree);
+
+        auto parameters_size = encryption_parameters.save(parms_stream);
+        cout << "Server: saved encryption parameters: wrote " << parameters_size << " bytes" << endl;
     }
-    cout << "Input vector:" << endl;
-    print_vector(input, 3, 7);
 
-    auto scale = pow(2.0, 50);
+    // client code
+    {
+        EncryptionParameters params;
+        params.load(parms_stream);
 
-    print_line(__LINE__);
-    cout << "Encode and encrypt." << endl;
-    Plaintext plain;
-    ckks_encoder.encode(input, scale, plain);
-    Ciphertext encrypted;
-    encryptor.encrypt(plain, encrypted);
+        parms_stream.seekg(0, parms_stream.beg);
 
-    Ciphertext rotated;
-    print_line(__LINE__);
-    cout << "Rotate 2 steps left." << endl;
+        auto context = SEALContext::Create(params);
 
-    evaluator.rotate_vector(encrypted, 2, gal_keys, rotated);
-    cout << "    + Decrypt and decode ...... Correct." << endl;
-    decryptor.decrypt(rotated, plain);
-    vector<double> result;
-    ckks_encoder.decode(plain, result);
-    print_vector(result, 3, 7);
+        KeyGenerator key_generator(context);
+        auto public_key = key_generator.public_key();
+        auto secret_key = key_generator.secret_key();
+        secret_key.save(sk_stream);
 
-    /*
-    With the CKKS scheme it is also possible to evaluate a complex conjugation on
-    a vector of encrypted complex numbers, using Evaluator::complex_conjugate.
-    This is in fact a kind of rotation, and requires also Galois keys.
-    */
+        auto relin_keys = key_generator.relin_keys_local();         // TODO: switch to non local
+        auto galois_keys = key_generator.galois_keys_local();
+
+        auto rlk_size = relin_keys.save(data_stream);           // ds save: 1
+        auto gal_size = galois_keys.save(data_stream);          // ds save: 2
+        auto public_key_size = public_key.save(data_stream);    // ds save: 3
+
+        Encryptor encryptor(context, public_key);
+        Evaluator evaluator(context);
+        Decryptor decryptor(context, secret_key);
+
+        CKKSEncoder ckks_encoder(context);
+
+        size_t slot_count = ckks_encoder.slot_count();
+        cout << "number of slots: " << slot_count << ", should be half of the size of poly modulus degree" << endl;
+
+        vector<double> model_weights{0.25, -0.25};
+        cout << "Input vector:" << endl;
+        print_vector(model_weights);
+
+        Plaintext model_weights_plain_text;
+        double scale = pow(2, 40);
+        print_line(__LINE__);
+        ckks_encoder.encode(model_weights, scale, model_weights_plain_text);
+
+        Ciphertext encrypted_weights;
+        encryptor.encrypt(model_weights_plain_text, encrypted_weights);
+        encrypted_weights.save(data_stream); // ds save: 4
+    }
+
+    // server code
+    {
+        EncryptionParameters parms;
+        parms.load(parms_stream);
+        parms_stream.seekg(0, parms_stream.beg);
+        auto server_context = SEALContext::Create(parms);
+
+        Evaluator server_evaluator(server_context);
+
+
+        vector<double> query{50, -3};
+        query = {3, 4};
+        double scale = pow(2, 40);
+        Plaintext query_plain_text;
+        CKKSEncoder ckks_encoder(server_context);
+        ckks_encoder.encode(query, scale, query_plain_text);
+        Ciphertext encrypted_query;
+
+        RelinKeys server_relin_keys;
+        GaloisKeys server_galois_keys;
+        PublicKey server_public_key;
+        Ciphertext server_encrypted_weights;
+
+
+        server_relin_keys.load(server_context, data_stream);            // load 1
+        server_galois_keys.load(server_context, data_stream);           // load 2
+        server_public_key.load(server_context, data_stream);            // load 3
+        server_encrypted_weights.load(server_context, data_stream);     // load 4
+
+        Encryptor encryptor(server_context, server_public_key);
+        encryptor.encrypt(query_plain_text, encrypted_query);
+
+        Ciphertext encrypted_multiplication_result;
+        server_evaluator.multiply(server_encrypted_weights, encrypted_query, encrypted_multiplication_result);
+        server_evaluator.relinearize_inplace(encrypted_multiplication_result, server_relin_keys);
+        server_evaluator.rescale_to_next_inplace(encrypted_multiplication_result);
+
+        vector<Ciphertext> rotations_output(encrypted_multiplication_result.size());
+        for (int steps = 0; steps < encrypted_multiplication_result.size(); steps++) {
+            server_evaluator.rotate_vector(encrypted_multiplication_result, steps, server_galois_keys,
+                                           rotations_output[steps]);
+        }
+        Ciphertext encrypted_sum_output;
+        server_evaluator.add_many(rotations_output, encrypted_sum_output);
+
+        encrypted_sum_output.save(data_stream);
+    }
+
+    // client code
+    {
+        EncryptionParameters parms;
+        parms.load(parms_stream);
+        parms_stream.seekg(0, parms_stream.beg);
+        auto context = SEALContext::Create(parms);
+
+        /*
+        Load back the secret key from sk_stream.
+        */
+        SecretKey sk;
+        sk.load(context, sk_stream);
+        Decryptor decryptor(context, sk);
+        CKKSEncoder encoder(context);
+
+        Ciphertext encrypted_result;
+        encrypted_result.load(context, data_stream);
+
+        Plaintext plain_result;
+        decryptor.decrypt(encrypted_result, plain_result);
+        vector<double> result;
+        encoder.decode(plain_result, result);
+
+        print_line(__LINE__);
+        cout << "Result: " << endl;
+        print_vector(result, 3, 7);
+    }
 }
 
 /*

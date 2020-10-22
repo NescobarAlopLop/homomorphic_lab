@@ -28,6 +28,8 @@ int main()
         cout << "+----------------------------+-------------------------------+" << endl;
         cout << "| 6 multiply vectors         | multiply vectors              |" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
+        cout << "| 7 multiply vectors seriali.| multiply vectors serialization|" << endl;
+        cout << "+----------------------------+-------------------------------+" << endl;
         cout << "| 0 Exit                     |                               |" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
 
@@ -67,7 +69,7 @@ int main()
                 multiply_vectors();
                 break;
             case 7:
-                example_rotation_ckks();
+                multiply_vectors_serialization_test();
                 break;
             case 0:
                 return 0;
