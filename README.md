@@ -15,42 +15,9 @@ https://github.com/marl/audiosetdl
 https://github.com/google/youtube-8m#download-dataset-locally
 
 
-run one example from server or debug container - done
-run multiple - done
-create personal cmake and main - done
-get example model
+python snippet from stack overflow explaining where to get weights and biases resulting 
+from SVM training.
 
-run homomorhic computation on extracted features of a sound
-    probably code generator since values may change between training and if model is improved
-compare results
-
-write sever/client application
-client:
-extracts features
-get parameters from server
-generates keys and sends data for computation on server
-receives encrypted data from server and decrypts the results
-
-server can train new models
-generate homomorphic C++ code to run evaluations on encrypted queries
-generate parameters
-transfers parameters to client
-receives encrypted data
-performs calculation and return encrypted result
-
-
-
-read all the examples:
-- bfv basics:
-    - only integers 
-    - supports addition and multiplication. addition is much "cheaper" in noise
-    - for all but simplest computations batching should be used
-- ckks:
-    - real numbers
-
-
-probably most important part of the knowledge required to start working on SEAL code can be found [here](https://stats.stackexchange.com/questions/39243/how-does-one-interpret-svm-feature-weights/355043#355043?newreg=8dc6259a834646c28769dfa2bb564de0)
-in short:
 ```python
 import numpy as np
 from sklearn.svm import SVC
@@ -69,6 +36,11 @@ print('Indices of support vectors = ', clf.support_)
 print('Support vectors = ', clf.support_vectors_)
 print('Number of support vectors for each class = ', clf.n_support_)
 print('Coefficients of the support vector in the decision function = ', np.abs(clf.dual_coef_))
+
+inference1 = np.sign(w.dot(X[0]))[0]
+print(f'{inference1} vs {y[0]}')
+inference2 = np.sign(w.dot(X[4]))[0]
+print(f'{inference2} vs {y[4]}')
 ``` 
 
 after training the model 
@@ -87,13 +59,14 @@ so in the following algorithm:
 - send - save as a local file
 - receive - read file
 
-client:
-    - generate keys
-    - encrypt query
-    - send public key and encrypted query to server
-    
 server:
-    - encrypt with public keys the model weights
+    - generate encryption parameters and store them
+    
+client:
+    - read encryption parameters
+    - generate secret/public keys
+    - encrypt with secret key the model weights and biases
+    
     - run computation
     - return encrypted result and class definition function (class 0 if less than 0 class 1 otherwise)
     
@@ -104,3 +77,9 @@ client:
  add masking for result vector:
  https://github.com/microsoft/SEAL/issues/64
  
+ test performance and try to make optimizations
+ 
+ i have used public key encryption because I assume that client should not have the access to the model
+ and the server should not see the clients data.
+ In case server is used for computation only and client is in charge of generating all the data then symmetric
+ key encryption migh be of benefit, mainly because of reduced size of transferred bytes.
