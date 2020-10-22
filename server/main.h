@@ -22,6 +22,7 @@
 
 void multiply_vectors();
 void multiply_vectors_serialization_test();
+void multiply_vectors_serialization_test_files();
 void example_encoders2();
 void example_integer_encoder();
 void example_batch_encoder();

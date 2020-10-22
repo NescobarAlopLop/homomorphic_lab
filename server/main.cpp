@@ -30,6 +30,8 @@ int main()
         cout << "+----------------------------+-------------------------------+" << endl;
         cout << "| 7 multiply vectors seriali.| multiply vectors serialization|" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
+        cout << "| 8 files serialization      | files serialization           |" << endl;
+        cout << "+----------------------------+-------------------------------+" << endl;
         cout << "| 0 Exit                     |                               |" << endl;
         cout << "+----------------------------+-------------------------------+" << endl;
 
@@ -70,6 +72,9 @@ int main()
                 break;
             case 7:
                 multiply_vectors_serialization_test();
+                break;
+            case 8:
+                multiply_vectors_serialization_test_files();
                 break;
             case 0:
                 return 0;
