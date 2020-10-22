@@ -1,7 +1,9 @@
+import copy
 import os
-import re
 from subprocess import call
 from time import sleep
+
+import numpy as np
 import pandas as pd
 import python_speech_features as psf
 import scipy.io.wavfile as sw
@@ -10,16 +12,16 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn_porter import Porter
-import numpy as np
+
 
 file_names = [
     file_path
-    for file_path in os.listdir('./cats_dogs') if os.path.isfile(os.path.join('./cats_dogs', file_path))
+    for file_path in os.listdir('./model_training/training_data') if os.path.isfile(os.path.join('./model_training/training_data', file_path))
 ]
 final_dataset = pd.DataFrame()  # Blank initial dataset
 
-for i in file_names:
-    rate, signal = sw.read(os.path.join('./cats_dogs', i))
+for file_name in file_names:
+    rate, signal = sw.read(os.path.join('./model_training/training_data', file_name))
     features = psf.base.mfcc(signal=signal, samplerate=rate, preemph=1.1, nfilt=26, numcep=13)
 
     features = psf.base.fbank(features)[1]
@@ -28,7 +30,7 @@ for i in file_names:
     # features = psf.base.lifter(features, L=10)
     # features = psf.base.delta(features, N=13) # worsen results
     features = pd.DataFrame(features)
-    features["Target"] = i
+    features["Target"] = file_name
     final_dataset = final_dataset.append(features)  # rbind(final_dataset,features)
 
 
@@ -65,19 +67,22 @@ X_test = pd.DataFrame(X_test)
 print(y_test.values[0:18])
 
 
+trained_models = {}
 for kernel in [
     'linear',
-    # 'poly',
-    # 'rbf',
-    # 'sigmoid',
+    'poly',
+    'rbf',
+    'sigmoid',
 ]:
-    model = svm.SVC(C=10.0, kernel=kernel,
-                    degree=3,
-                    gamma=1.0/26,
-                    # gamma='auto',
-                    coef0=0.0, shrinking=True, probability=False,
-                    tol=0.001, cache_size=200, class_weight=None, verbose=False, max_iter=-1,
-                    decision_function_shape='ovr', break_ties=False, random_state=None)
+    model = svm.SVC(
+        C=10.0,
+        kernel=kernel,
+        degree=3,
+        gamma=1.0/26,
+        # gamma='auto',
+        coef0=0.0, shrinking=True, probability=False,
+        tol=0.001, cache_size=200, class_weight=None, verbose=False, max_iter=-1,
+        decision_function_shape='ovr', break_ties=False, random_state=None)
 
     model.fit(X_train, y_train)
     model.support_vectors_ = np.around(model.support_vectors_, decimals=2)
@@ -123,6 +128,11 @@ for kernel in [
     print("".join([f'{x}' for x in y_test]))
 
     print(f'\n./porter_out/svc_{kernel}.o {call_array}')
+    trained_models[kernel] = {
+        'model': copy.deepcopy(model),
+        'acc_score': acc_score,
+    }
+
 
 print(model)
 print(model.support_vectors_)
