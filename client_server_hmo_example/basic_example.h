@@ -1,7 +1,3 @@
-//
-// Created by george on 10/23/20.
-//
-
 #ifndef LAB_BASIC_EXAMPLE_H
 #define LAB_BASIC_EXAMPLE_H
 #pragma once

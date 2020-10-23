@@ -7,7 +7,6 @@ int main()
 {
     // server code:
     {
-        ofstream ofs_parameters("../temp_data/parameters.dat", ios::binary);
 
         EncryptionParameters encryption_parameters(scheme_type::CKKS);
         std::size_t poly_modulus_degree = 8192;
@@ -17,14 +16,14 @@ int main()
         auto coefficient_modulus_degree = CoeffModulus::Create(poly_modulus_degree, bit_sizes);
         encryption_parameters.set_coeff_modulus(coefficient_modulus_degree);
 
+        ofstream ofs_parameters("./parameters.dat", ios::binary);
         auto parameters_size = encryption_parameters.save(ofs_parameters);
         cout << "Server: saved encryption parameters: wrote " << parameters_size << " bytes" << endl;
     }
 
     // client code
     {
-        ifstream parameters_file_stream("../temp_data/parameters.dat", ios::binary);
-
+        ifstream parameters_file_stream("./parameters.dat", ios::binary);
         EncryptionParameters params;
         params.load(parameters_file_stream);
 
@@ -34,15 +33,15 @@ int main()
         auto public_key = key_generator.public_key();
         auto secret_key = key_generator.secret_key();
 
-        ofstream ofs_secret_key("../temp_data/secret_key.dat", ios::binary);
+        ofstream ofs_secret_key("./secret_key.dat", ios::binary);
         secret_key.save(ofs_secret_key);
 
         auto relin_keys = key_generator.relin_keys_local();         // TODO: switch to non local
         auto galois_keys = key_generator.galois_keys_local();
 
-        ofstream ifs_relin("../temp_data/relin.dat", ios::binary);
-        ofstream ifs_galois("../temp_data/galois.dat", ios::binary);
-        ofstream ifs_public_key("../temp_data/public_key.dat", ios::binary);
+        ofstream ifs_relin("./relin.dat", ios::binary);
+        ofstream ifs_galois("./galois.dat", ios::binary);
+        ofstream ifs_public_key("./public_key.dat", ios::binary);
 
         auto rlk_size = relin_keys.save(ifs_relin);
         auto gal_size = galois_keys.save(ifs_galois);
@@ -68,14 +67,14 @@ int main()
 
         Ciphertext encrypted_user_query;
         encryptor.encrypt(user_query_plain_text, encrypted_user_query);
-        ofstream ofs_encrypted_query("../temp_data/encrypted_query.dat", ios::binary);
+        ofstream ofs_encrypted_query("./encrypted_query.dat", ios::binary);
         encrypted_user_query.save(ofs_encrypted_query);
     }
 
     // server code
     {
         EncryptionParameters encryption_parameters;
-        ifstream parameters_file_stream("../temp_data/parameters.dat", ios::binary);
+        ifstream parameters_file_stream("./parameters.dat", ios::binary);
         encryption_parameters.load(parameters_file_stream);
         auto server_context = SEALContext::Create(encryption_parameters);
 
@@ -88,15 +87,15 @@ int main()
         Ciphertext encrypted_model_weights;
 
 
-        ifstream ifs_relin("../temp_data/relin.dat", ios::binary);
-        ifstream ifs_galois("../temp_data/galois.dat", ios::binary);
-        ifstream ifs_public_key("../temp_data/public_key.dat", ios::binary);
+        ifstream ifs_relin("./relin.dat", ios::binary);
+        ifstream ifs_galois("./galois.dat", ios::binary);
+        ifstream ifs_public_key("./public_key.dat", ios::binary);
 
         PublicKey server_public_key;
         server_public_key.load(server_context, ifs_public_key);
         Encryptor encryptor(server_context, server_public_key);
 
-        ifstream ifs_encrypted_query("../temp_data/encrypted_query.dat", ios::binary);
+        ifstream ifs_encrypted_query("./encrypted_query.dat", ios::binary);
         Ciphertext encrypted_query;
         encrypted_query.load(server_context, ifs_encrypted_query);
 
@@ -121,14 +120,14 @@ int main()
         Ciphertext encrypted_sum_output;
         server_evaluator.add_many(rotations_output, encrypted_sum_output);
 
-        ofstream ofs_result("../temp_data/result.dat", ios::binary);
+        ofstream ofs_result("./result.dat", ios::binary);
         encrypted_sum_output.save(ofs_result);
     }
 
     // client code
     {
         EncryptionParameters parms;
-        ifstream ifs_parameters("../temp_data/parameters.dat", ios::binary);
+        ifstream ifs_parameters("./parameters.dat", ios::binary);
         parms.load(ifs_parameters);
         auto context = SEALContext::Create(parms);
 
@@ -136,13 +135,13 @@ int main()
         Load back the secret key from sk_stream.
         */
         SecretKey sk;
-        ifstream ifs_secret_key("../temp_data/secret_key.dat", ios::binary);
+        ifstream ifs_secret_key("./secret_key.dat", ios::binary);
         sk.load(context, ifs_secret_key);
         Decryptor decryptor(context, sk);
         CKKSEncoder encoder(context);
 
         Ciphertext encrypted_result;
-        ifstream ifs_result("../temp_data/result.dat", ios::binary);
+        ifstream ifs_result("./result.dat", ios::binary);
         encrypted_result.load(context, ifs_result);
 
         Plaintext plain_result;
