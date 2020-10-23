@@ -21,6 +21,12 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+/client_server_hmo_example/cmake-build-debug/
+/server/Makefile
 /server/bin/
 /server/cmake-build-debug/
+/server/CMakeFiles/
 /server/temp_data/
+/server/CMakeCache.txt
+/server/cmake_install.cmake
