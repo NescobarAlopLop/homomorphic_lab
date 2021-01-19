@@ -3,17 +3,58 @@ This project will run machine learning models on encrypted data.
 It is still in its early stages of development.
 
 
+# Getting started:
+### Download dataset:
+First we need some labeled data, I've used Googles [AudioSet](https://research.google.com/audioset/dataset/index.html).
+
+In `dataset` folder in project root directory you will find 2 csv files. They are both from
+the original dataset website and as the names suggest they contain training and testing data labels.
+But this is not all, we are missing the audio files themselves, to download them please run the following terminal
+commands:
+```shell
+cd ./dataset
+chmod +x download.sh
+cat eval_segments.csv | ./download.sh  # to download all audio files listed in csv file
+
+# or
+cat eval_segments.csv | grep /m/05tny_ | ./download.sh # to download files with specific tag 
+```
+For our needs a dog bark and a cats meow which are `/m/05tny_` and `/m/07qrkrw` respectively will be sufficient.
+
+Source of download script is [here](https://github.com/unixpickle/audioset/blob/master/download/download.sh)
+
+### Unpack audio files
+If you have used the above way of downloading the audio files you'll discover that they are compressed
+in .gz format, so our next step will be un-compressing them, since I don't see the need in keeping compressed files
+I went with:
+```shell
+cd ./dataset
+gunzip *.gz
+```
+in case you do want to keep the zipped files:
+```shell
+cd ./dataset
+for f in *.gz ; do gunzip -c "$f" > /home/$USER/"${f%.*}" ; done
+```
+will do the trick.
+
+
+### Train your model:
+I've used scikit learn library for SVM model training, so you'll have to install
+the rquirements needed to run the `train.py` script
+I assume you do have python version 3 and above.
+To install python requirements for the project run:
+```shell
+pip3 install -r requirements.txt
+```
+_Note:_ I would suggest to use virtual environment to keep the project contained. 
+But the details on how exactly to do that I'll leave to the reader.
+
+
 to run debug server run from project root:
 ```shell script
 docker-compose -f docker/docker-compose.yml up -d gdbserver
 ```
-
-
-#### Sources for audio
-project for downloading dataset:
-https://github.com/marl/audiosetdl
-https://github.com/google/youtube-8m#download-dataset-locally
-
 
 python snippet from stack overflow explaining where to get weights and biases resulting 
 from SVM training.
