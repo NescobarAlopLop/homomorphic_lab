@@ -7,9 +7,13 @@ It is still in its early stages of development.
 ### Download dataset:
 First we need some labeled data, I've used Googles [AudioSet](https://research.google.com/audioset/dataset/index.html).
 
-In `dataset` folder in project root directory you will find 2 csv files. They are both from
-the original dataset website and as the names suggest they contain training and testing data labels.
-But this is not all, we are missing the audio files themselves, to download them please run the following terminal
+In [`dataset`](./dataset) folder in project root directory you will find 2 csv files. They are both from
+the original dataset website and as the names suggest:
+- [`balanced_train_segments.csv`](./dataset/balanced_train_segments.csv) -  contains training data labels.
+- [`eval_segments.csv`](./dataset/eval_segments.csv) -  contains testing data labels.
+- [`class_labels_indices.csv`](./dataset/class_labels_indices.csv) -  contains testing data labels.
+
+But that's not all, we are missing the audio files themselves, to download them please run the following terminal
 commands:
 ```shell
 cd ./dataset
@@ -41,7 +45,7 @@ will do the trick.
 
 ### Train your model:
 I've used scikit learn library for SVM model training, so you'll have to install
-the rquirements needed to run the `train.py` script
+the requirements needed to run the `train.py` script
 I assume you do have python version 3 and above.
 To install python requirements for the project run:
 ```shell
