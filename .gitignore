@@ -30,3 +30,5 @@ var/
 /server/temp_data/
 /server/CMakeCache.txt
 /server/cmake_install.cmake
+
+dataset/audio_files
