@@ -75,13 +75,14 @@ clf.fit(X, y    )
 
 w = clf.coef_
 b = clf.intercept_
-print('w = ', clf.coef_)
+print('w = ', clf.coef_)  # Only for linear kernel
 print('b = ', clf.intercept_)
 print('Indices of support vectors = ', clf.support_)
 print('Support vectors = ', clf.support_vectors_)
 print('Number of support vectors for each class = ', clf.n_support_)
 print('Coefficients of the support vector in the decision function = ', np.abs(clf.dual_coef_))
 
+# linear kernel inference
 inference1 = np.sign(w.dot(X[0]))[0]
 print(f'{inference1} vs {y[0]}')
 inference2 = np.sign(w.dot(X[4]))[0]
@@ -128,3 +129,10 @@ client:
  and the server should not see the clients data.
  In case server is used for computation only and client is in charge of generating all the data then symmetric
  key encryption migh be of benefit, mainly because of reduced size of transferred bytes.
+
+
+cat meow:
+`83,/m/07qrkrw,"Meow"`
+
+dog bark:
+`75,/m/05tny_,"Bark"`
