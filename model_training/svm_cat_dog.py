@@ -22,9 +22,15 @@ final_dataset = pd.DataFrame()  # Blank initial dataset
 
 number_of_filters = 26
 for file_name in os.listdir(audio_files_directory):
+    if not os.path.isfile(os.path.join(audio_files_directory, file_name)):
+        continue
+
     rate, signal = sw.read(os.path.join(audio_files_directory, file_name))
     features = psf.base.mfcc(signal=signal, samplerate=rate, preemph=1.1, nfilt=number_of_filters, numcep=17)
-    features = psf.base.fbank(features)[1]
+    features = psf.base.fbank(
+        signal=features,
+        samplerate=rate,
+    )[1]
     features = psf.base.logfbank(features)
     features_df = pd.DataFrame(features)
 
@@ -49,9 +55,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.24, random
 # Feature Scaling
 sc = StandardScaler()
 X_train = sc.fit_transform(X_train)
-X_test = sc.fit_transform(X_test)
-
 X_train = pd.DataFrame(X_train)
+
+X_test = sc.fit_transform(X_test)
 X_test = pd.DataFrame(X_test)
 
 
@@ -88,6 +94,7 @@ for kernel in [
 ]:
     model = svm.SVC(
         kernel=kernel,
+        C=20,
     )
     model.fit(X_train, y_train)
     acc_score = model.score(X_test, y_test)
