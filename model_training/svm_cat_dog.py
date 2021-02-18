@@ -61,34 +61,8 @@ X_test = sc.fit_transform(X_test)
 X_test = pd.DataFrame(X_test)
 
 
-def one(X, Y):
-    return (np.dot(X, Y.T) + 1) ** 3
-
-
-def two(X, Y):
-    return (np.dot(X, Y.T) + 1) ** 2
-
-
-def three(X, Y):
-    return X.dot(Y.T) ** 3
-
-
-def four(X, Y):
-    return X.dot(Y.T) ** 4
-
-
-def five(X, Y):
-    res = np.dot(X, Y.T) + 1
-    return res ** 5
-
-
 trained_models = {}
 for kernel in [
-    one,
-    two,
-    three,
-    four,
-    five,
     'linear',
     'poly',
 ]:
