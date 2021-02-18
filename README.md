@@ -71,7 +71,7 @@ X = np.array([[3, 4], [1, 4], [2, 3], [6, -1], [7, -1], [5, -3]])
 y = np.array([-1, -1, -1, 1, 1, 1])
 
 clf = SVC(C=1e5, kernel='linear')
-clf.fit(X, y    )
+clf.fit(X, y)
 
 w = clf.coef_
 b = clf.intercept_
@@ -83,9 +83,9 @@ print('Number of support vectors for each class = ', clf.n_support_)
 print('Coefficients of the support vector in the decision function = ', np.abs(clf.dual_coef_))
 
 # linear kernel inference
-inference1 = np.sign(w.dot(X[0]))[0]
+inference1 = np.sign(w.dot(X[0]) + b)[0]
 print(f'{inference1} vs {y[0]}')
-inference2 = np.sign(w.dot(X[4]))[0]
+inference2 = np.sign(w.dot(X[4]) + b)[0]
 print(f'{inference2} vs {y[4]}')
 ``` 
 
