@@ -35,7 +35,7 @@ for file_name in os.listdir(audio_files_directory):
     features_df = pd.DataFrame(features)
 
     if 'dog' in file_name:
-        features_df['label'] = '0'
+        features_df['label'] = '-1'
     elif 'cat' in file_name:
         features_df['label'] = '1'
     else:
@@ -95,6 +95,7 @@ for kernel in [
     model = svm.SVC(
         kernel=kernel,
         C=20,
+        gamma=10,
     )
     model.fit(X_train, y_train)
     acc_score = model.score(X_test, y_test)
@@ -108,3 +109,22 @@ for kernel in [
         'model': copy.deepcopy(model),
         'acc_score': acc_score,
     }
+
+
+print(f'prediction {y_train.iloc[0]} {model.predict(np.array(X_train.iloc[0,:]).reshape((1,26)))}')
+print(f'prediction {y_train.iloc[1]} {model.predict(np.array(X_train.iloc[1,:]).reshape((1,26)))}')
+
+model = trained_models['poly']['model']
+for file_name in os.listdir(audio_files_directory)[:12]:
+    if not os.path.isfile(os.path.join(audio_files_directory, file_name)):
+        continue
+
+    rate, signal = sw.read(os.path.join(audio_files_directory, file_name))
+    features = psf.base.mfcc(signal=signal, samplerate=rate, preemph=1.1, nfilt=number_of_filters, numcep=17)
+    features = psf.base.fbank(features)[1]
+    features = psf.base.logfbank(features)
+    features = pd.DataFrame(features)
+    features = pd.DataFrame(features)
+
+    print(f'\t{file_name}  {model.predict(features)[0]} {model.decision_function(features)[0]}')
+    print(f'\t\t\t\t{np.sign(model.dual_coef_.dot((features.dot(model.support_vectors_.T)).T ** 3) * 1000 + model.intercept_)[0]}  {model.dual_coef_.dot((features.dot(model.support_vectors_.T)).T ** 3) * 1000 + model.intercept_[0]}\n')
