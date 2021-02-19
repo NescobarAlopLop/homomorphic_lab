@@ -70,28 +70,29 @@ from sklearn.svm import SVC
 X = np.array([[3, 4], [1, 4], [2, 3], [6, -1], [7, -1], [5, -3]])
 y = np.array([-1, -1, -1, 1, 1, 1])
 
-clf = SVC(C=1e5, kernel='linear')
+clf = SVC(kernel='poly', gamma=1)
 clf.fit(X, y)
 
-w = clf.coef_
-b = clf.intercept_
-print('w = ', clf.coef_)  # Only for linear kernel
 print('b = ', clf.intercept_)
 print('Indices of support vectors = ', clf.support_)
 print('Support vectors = ', clf.support_vectors_)
 print('Number of support vectors for each class = ', clf.n_support_)
 print('Coefficients of the support vector in the decision function = ', np.abs(clf.dual_coef_))
 
-# linear kernel inference
-inference1 = np.sign(w.dot(X[0]) + b)[0]
-print(f'{inference1} vs {y[0]}')
-inference2 = np.sign(w.dot(X[4]) + b)[0]
-print(f'{inference2} vs {y[4]}')
+negative_prediction = clf.dual_coef_.dot(np.power(clf.gamma * clf.support_vectors_.dot(X[0]), clf.degree)) + clf.intercept_
+positive_prediction = clf.dual_coef_.dot(np.power(clf.gamma * clf.support_vectors_.dot(X[4]), clf.degree)) + clf.intercept_
+
+print('Compare both results')
+print(negative_prediction, clf.decision_function(X[0].reshape((1, 2))))
+print(positive_prediction, clf.decision_function(X[4].reshape((1, 2))))
+
+assert np.sign(negative_prediction) == clf.predict(X[0].reshape((1, 2)))
+assert np.sign(positive_prediction) == clf.predict(X[4].reshape((1, 2)))
 ``` 
 
 after training the model 
 
-no need to generate cpp code, model can be loaded from text file stored on server or passed as
+no need to generate cpp code, model can be loaded from text file stored on a server or passed as
 argument by managing python script.
 
 need to read up on serialization and transfer of public key and encrypted model
