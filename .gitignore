@@ -32,3 +32,6 @@ var/
 /server/cmake_install.cmake
 
 dataset/audio_files
+./bin
+./build
+cmake-build-debug
