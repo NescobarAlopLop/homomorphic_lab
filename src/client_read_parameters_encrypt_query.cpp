@@ -6,7 +6,7 @@ using namespace seal;
 int main()
 // client code
 {
-    ifstream parameters_file_stream("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/parameters.dat", ios::binary);
+    ifstream parameters_file_stream("parameters.dat", ios::binary);
     EncryptionParameters params;
     params.load(parameters_file_stream);
 
@@ -16,15 +16,15 @@ int main()
     auto public_key = key_generator.public_key();
     auto secret_key = key_generator.secret_key();
 
-    ofstream ofs_secret_key("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/client_data/secret_key.dat", ios::binary);
+    ofstream ofs_secret_key("secret_key.dat", ios::binary);
     secret_key.save(ofs_secret_key);
 
     auto relin_keys = key_generator.relin_keys_local();         // TODO: switch to non local
     auto galois_keys = key_generator.galois_keys_local();
 
-    ofstream ifs_relin("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/relin.dat", ios::binary);
-    ofstream ifs_galois("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/galois.dat", ios::binary);
-    ofstream ifs_public_key("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/public_key.dat", ios::binary);
+    ofstream ifs_relin("relin.dat", ios::binary);
+    ofstream ifs_galois("galois.dat", ios::binary);
+    ofstream ifs_public_key("public_key.dat", ios::binary);
 
     auto rlk_size = relin_keys.save(ifs_relin);
     auto gal_size = galois_keys.save(ifs_galois);
@@ -50,6 +50,6 @@ int main()
 
     Ciphertext encrypted_user_query;
     encryptor.encrypt(user_query_plain_text, encrypted_user_query);
-    ofstream ofs_encrypted_query("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/encrypted_query.dat", ios::binary);
+    ofstream ofs_encrypted_query("encrypted_query.dat", ios::binary);
     encrypted_user_query.save(ofs_encrypted_query);
 }

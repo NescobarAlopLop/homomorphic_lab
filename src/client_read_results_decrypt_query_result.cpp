@@ -6,7 +6,7 @@ using namespace seal;
 int main()
 {
     EncryptionParameters parms;
-    ifstream ifs_parameters("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/parameters.dat", ios::binary);
+    ifstream ifs_parameters("parameters.dat", ios::binary);
     parms.load(ifs_parameters);
     auto context = SEALContext::Create(parms);
 
@@ -14,13 +14,13 @@ int main()
     Load back the secret key from sk_stream.
     */
     SecretKey sk;
-    ifstream ifs_secret_key("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/client_data/secret_key.dat", ios::binary);
+    ifstream ifs_secret_key("secret_key.dat", ios::binary);
     sk.load(context, ifs_secret_key);
     Decryptor decryptor(context, sk);
     CKKSEncoder encoder(context);
 
     Ciphertext encrypted_result;
-    ifstream ifs_result("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/result.dat", ios::binary);
+    ifstream ifs_result("result.dat", ios::binary);
     encrypted_result.load(context, ifs_result);
 
     Plaintext plain_result;

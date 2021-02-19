@@ -6,7 +6,7 @@ using namespace seal;
 int main()
 {
     EncryptionParameters encryption_parameters;
-    ifstream parameters_file_stream("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/parameters.dat", ios::binary);
+    ifstream parameters_file_stream("parameters.dat", ios::binary);
     encryption_parameters.load(parameters_file_stream);
     auto server_context = SEALContext::Create(encryption_parameters);
 
@@ -19,15 +19,15 @@ int main()
     Ciphertext encrypted_model_weights;
 
 
-    ifstream ifs_relin("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/relin.dat", ios::binary);
-    ifstream ifs_galois("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/galois.dat", ios::binary);
-    ifstream ifs_public_key("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/public_key.dat", ios::binary);
+    ifstream ifs_relin("relin.dat", ios::binary);
+    ifstream ifs_galois("galois.dat", ios::binary);
+    ifstream ifs_public_key("public_key.dat", ios::binary);
 
     PublicKey server_public_key;
     server_public_key.load(server_context, ifs_public_key);
     Encryptor encryptor(server_context, server_public_key);
 
-    ifstream ifs_encrypted_query("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/encrypted_query.dat", ios::binary);
+    ifstream ifs_encrypted_query("encrypted_query.dat", ios::binary);
     Ciphertext encrypted_query;
     encrypted_query.load(server_context, ifs_encrypted_query);
 
@@ -52,6 +52,6 @@ int main()
     Ciphertext encrypted_sum_output;
     server_evaluator.add_many(rotations_output, encrypted_sum_output);
 
-    ofstream ofs_result("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/result.dat", ios::binary);
+    ofstream ofs_result("result.dat", ios::binary);
     encrypted_sum_output.save(ofs_result);
 }

@@ -5,7 +5,7 @@ using namespace seal;
 
 int main()
 {
-    ofstream ofs_parameters("/home/${USER}/Documents/homomorhpic_lab/server/bin/tmp/common_data/parameters.dat", ios::binary);
+    ofstream ofs_parameters("parameters.dat", ios::binary);
 
     EncryptionParameters encryption_parameters(scheme_type::CKKS);
     std::size_t poly_modulus_degree = 8192;
