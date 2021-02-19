@@ -100,5 +100,7 @@ for file_name in os.listdir(audio_files_directory)[:12]:
     features = pd.DataFrame(features)
     features = pd.DataFrame(features)
 
+    prediction = model.dual_coef_.dot(np.power(model.gamma * model.support_vectors_.dot(features.T), model.degree)) + model.intercept_
+
     print(f'\t{file_name}  {model.predict(features)[0]} {model.decision_function(features)[0]}')
-    print(f'\t\t\t\t{np.sign(model.dual_coef_.dot((features.dot(model.support_vectors_.T)).T ** 3) * 1000 + model.intercept_)[0]}  {model.dual_coef_.dot((features.dot(model.support_vectors_.T)).T ** 3) * 1000 + model.intercept_[0]}\n')
+    print(f'\t\t\t\t{np.sign(prediction)}  {prediction}\n')
