@@ -22,7 +22,10 @@ add_executable(client_read_results_decrypt_query_result ${PROJECT_SOURCE_DIR}/sr
 target_link_libraries(client_read_results_decrypt_query_result SEAL::seal)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-add_executable(server_generate_parameters ${PROJECT_SOURCE_DIR}/src/server_generate_parameters.cpp)
+add_executable(server_generate_parameters
+        ${PROJECT_SOURCE_DIR}/src/server_generate_parameters.cpp
+        ${PROJECT_SOURCE_DIR}/src/json.hpp
+)
 target_link_libraries(server_generate_parameters SEAL::seal)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
