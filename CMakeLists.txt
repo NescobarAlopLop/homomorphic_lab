@@ -7,6 +7,7 @@ find_package(SEAL 3.5 REQUIRED)
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src
 )
 
 set(source_files
@@ -32,10 +33,16 @@ add_executable(server_generate_parameters
 target_link_libraries(server_generate_parameters SEAL::seal)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-add_executable(server_run_computation ${PROJECT_SOURCE_DIR}/src/server_run_computation.cpp)
+add_executable(server_run_computation
+        ${PROJECT_SOURCE_DIR}/src/server_run_computation.cpp
+        ${PROJECT_SOURCE_DIR}/src/json.hpp
+)
 target_link_libraries(server_run_computation SEAL::seal)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-add_executable(basic_server_client_example ${PROJECT_SOURCE_DIR}/src/basic_example.cpp)
+add_executable(basic_server_client_example
+        ${PROJECT_SOURCE_DIR}/src/basic_example.cpp
+        ${PROJECT_SOURCE_DIR}/src/json.hpp
+)
 
 target_link_libraries(basic_server_client_example SEAL::seal)
