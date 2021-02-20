@@ -32,8 +32,10 @@ int main(int argc, char* argv[])
 	auto y = input_json["scale"]["y"].get<int>();
 
 	cout << "Client read client query" << endl;
-	cout << "\tquery: " << input_json["query"] << endl;
-	cout << "\tscale.x: " << x << " scale.y: " << y << endl;
+	cout << "\tquery: " << endl;
+	for(auto& value:user_query)
+		cout << value << " ";
+	cout << endl << "\tscale.x: " << x << " scale.y: " << y << endl;
 
     ifstream parameters_file_stream(config_dir_path + "/parameters.dat", ios::binary);
     EncryptionParameters params;
@@ -61,8 +63,6 @@ int main(int argc, char* argv[])
 
     Encryptor encryptor(context, public_key);
     Evaluator evaluator(context);
-    Decryptor decryptor(context, secret_key);
-
     CKKSEncoder ckks_encoder(context);
 
     size_t slot_count = ckks_encoder.slot_count();
