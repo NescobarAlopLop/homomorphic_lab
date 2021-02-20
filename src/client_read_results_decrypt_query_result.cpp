@@ -50,6 +50,6 @@ int main(int argc, char* argv[])
 	std::ifstream i(config_dir_path + "/client_query.json");
 	json input_json;
 	i >> input_json;
-    cout << "For testing only:" << endl << "expected value: " << input_json["expected_value"] << endl;
-    cout << "result value: " << result[0] << endl;
+    cout << "For testing only:" << endl << "\texpected value: " << input_json["expected_value"] << endl;
+    cout << "\tresult value: " << result[0] << endl;
 }
