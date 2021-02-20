@@ -13,7 +13,11 @@ echo "Finished compilation."
 echo -e "\n 1. Server: generating parameters..."
 "${HOMOMORPHIC_ROOT}"/bin/server_generate_parameters "${HOMOMORPHIC_ROOT}"/example_inputs
 
-bin/server_generate_parameters
-bin/client_read_parameters_encrypt_query
-bin/server_run_computation
-bin/client_read_results_decrypt_query_result
+echo -e "\n 2. Client: read parameters and encrypt query..."
+"${HOMOMORPHIC_ROOT}"/bin/client_read_parameters_encrypt_query "${HOMOMORPHIC_ROOT}"/example_inputs
+
+echo -e "\n 3. Server: read parameters and encrypted query, and run computation on encrypted query..."
+"${HOMOMORPHIC_ROOT}"/bin/server_run_computation "${HOMOMORPHIC_ROOT}"/example_inputs
+
+echo -e "\n 4. Client: read parameters, and encrypted result, decrypt and print result"
+"${HOMOMORPHIC_ROOT}"/bin/client_read_results_decrypt_query_result "${HOMOMORPHIC_ROOT}"/example_inputs

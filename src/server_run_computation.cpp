@@ -1,33 +1,63 @@
 #include "utils.h"
+#include <json.hpp>
 
 using namespace std;
 using namespace seal;
+using json = nlohmann::json;
 
-int main()
+int main(int argc, char* argv[])
 {
+	if (argc != 2)
+	{
+		cerr << "Provide path to configurations directory" << endl;
+		cout << "/bin/server_run_computation <path to config directory>" << endl;
+		cout << "For example:" << endl;
+		cout << "\"${HOMOMORPHIC_ROOT}\"/bin/server_run_computation \"${HOMOMORPHIC_ROOT}\"/example_inputs" << endl;
+
+		return -1;
+	}
+
+	auto config_dir_path = string(argv[1]);
+
+	// read a JSON file
+	std::ifstream i(config_dir_path + "/model.json");
+	json input_json;
+	i >> input_json;
+
+	auto model_weights = input_json["model_weights"].get<std::vector<double>>();
+
+	i.close();
+	i.open(config_dir_path + "/encryption_parameters_config.json");
+	i >> input_json;
+	auto x = input_json["scale"]["x"].get<int>();
+	auto y = input_json["scale"]["y"].get<int>();
+
+	cout << "model_weights: " << endl;
+	for (const auto& value: model_weights)
+		std::cout << value << ' ';
+	cout << endl << "\tscale.x: " << x << " scale.y: " << y << endl;
+
     EncryptionParameters encryption_parameters;
-    ifstream parameters_file_stream("parameters.dat", ios::binary);
+    ifstream parameters_file_stream(config_dir_path + "/parameters.dat", ios::binary);
     encryption_parameters.load(parameters_file_stream);
     auto server_context = SEALContext::Create(encryption_parameters);
 
-    vector<double> model_weights{50, -3};
-    model_weights = {3, 4};
-    double scale = pow(2, 40);
+    double scale = pow(x, y);
     Plaintext model_weights_plain_text;
     CKKSEncoder ckks_encoder(server_context);
     ckks_encoder.encode(model_weights, scale, model_weights_plain_text);
     Ciphertext encrypted_model_weights;
 
 
-    ifstream ifs_relin("relin.dat", ios::binary);
-    ifstream ifs_galois("galois.dat", ios::binary);
-    ifstream ifs_public_key("public_key.dat", ios::binary);
+    ifstream ifs_relin(config_dir_path + "/relin.dat", ios::binary);
+    ifstream ifs_galois(config_dir_path + "/galois.dat", ios::binary);
+    ifstream ifs_public_key(config_dir_path + "/public_key.dat", ios::binary);
 
     PublicKey server_public_key;
     server_public_key.load(server_context, ifs_public_key);
     Encryptor encryptor(server_context, server_public_key);
 
-    ifstream ifs_encrypted_query("encrypted_query.dat", ios::binary);
+    ifstream ifs_encrypted_query(config_dir_path + "/encrypted_query.dat", ios::binary);
     Ciphertext encrypted_query;
     encrypted_query.load(server_context, ifs_encrypted_query);
 
@@ -52,6 +82,6 @@ int main()
     Ciphertext encrypted_sum_output;
     server_evaluator.add_many(rotations_output, encrypted_sum_output);
 
-    ofstream ofs_result("result.dat", ios::binary);
+    ofstream ofs_result(config_dir_path + "/result.dat", ios::binary);
     encrypted_sum_output.save(ofs_result);
 }

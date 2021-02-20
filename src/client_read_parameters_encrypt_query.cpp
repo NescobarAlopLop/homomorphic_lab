@@ -23,12 +23,15 @@ int main(int argc, char* argv[])
 	std::ifstream i(config_dir_path + "/client_query.json");
 	json input_json;
 	i >> input_json;
-
 	auto user_query = input_json["query"].get<std::vector<double>>();
+
+	i.close();
+	i.open(config_dir_path + "/encryption_parameters_config.json");
+	i >> input_json;
 	auto x = input_json["scale"]["x"].get<int>();
 	auto y = input_json["scale"]["y"].get<int>();
 
-	cout << "Client read cliend query" << endl;
+	cout << "Client read client query" << endl;
 	cout << "\tquery: " << input_json["query"] << endl;
 	cout << "\tscale.x: " << x << " scale.y: " << y << endl;
 
