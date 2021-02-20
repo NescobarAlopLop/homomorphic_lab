@@ -74,8 +74,8 @@ int main(int argc, char* argv[])
 
     GaloisKeys server_galois_keys;
     server_galois_keys.load(server_context, ifs_galois);
-    vector<Ciphertext> rotations_output(encrypted_multiplication_result.size());
-    for (int steps = 0; steps < encrypted_multiplication_result.size(); steps++) {
+    vector<Ciphertext> rotations_output(model_weights.size());
+    for (int steps = 0; steps < rotations_output.size(); steps++) {
         server_evaluator.rotate_vector(encrypted_multiplication_result, steps, server_galois_keys,
                                        rotations_output[steps]);
     }
