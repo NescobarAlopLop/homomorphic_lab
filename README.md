@@ -2,6 +2,15 @@
 This project will run machine learning models on encrypted data.
 It is still in its early stages of development.
 
+# To only run and get the feel of it:
+1. clone the repository: `git clone git@github.com:NescobarAlopLop/homomorhpic_lab.git`
+2. cd into cloned repository `cd homomorhpic_lab`
+3. run `run_executables_in_logical_order.sh` **from the root directory**. This script will
+   compile the executables and run them in the correct order with pretrained
+   model and example input.
+   
+# Prerequisites:
+- install Microsoft Seal
 
 # Getting started:
 ### Download dataset:
@@ -86,6 +95,12 @@ print('Compare both results')
 print(negative_prediction, clf.decision_function(X[0].reshape((1, 2))))
 print(positive_prediction, clf.decision_function(X[4].reshape((1, 2))))
 
+print('-' * 8)
+print(f'clf.dual_coef_ {clf.dual_coef_[0]}')
+print(f'clf.gamma {clf.gamma}')
+print(f'clf.support_vectors_ {clf.support_vectors_}')
+print(f'clf.degree {clf.degree}')
+print(f'clf.intercept_ {clf.intercept_}')
 assert np.sign(negative_prediction) == clf.predict(X[0].reshape((1, 2)))
 assert np.sign(positive_prediction) == clf.predict(X[4].reshape((1, 2)))
 ``` 
@@ -129,7 +144,7 @@ client:
  i have used public key encryption because I assume that client should not have the access to the model
  and the server should not see the clients data.
  In case server is used for computation only and client is in charge of generating all the data then symmetric
- key encryption migh be of benefit, mainly because of reduced size of transferred bytes.
+ key encryption might be of benefit, mainly because of reduced size of transferred bytes.
 
 
 cat meow:
