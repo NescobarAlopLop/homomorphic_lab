@@ -14,7 +14,10 @@ set(source_files
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-add_executable(client_read_parameters_encrypt_query ${PROJECT_SOURCE_DIR}/src/client_read_parameters_encrypt_query.cpp)
+add_executable(client_read_parameters_encrypt_query
+        ${PROJECT_SOURCE_DIR}/src/client_read_parameters_encrypt_query.cpp
+        ${PROJECT_SOURCE_DIR}/src/json.hpp
+)
 target_link_libraries(client_read_parameters_encrypt_query SEAL::seal)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
