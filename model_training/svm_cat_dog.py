@@ -52,8 +52,8 @@ y = final_dataset.iloc[:, -1]
 
 # Splitting into test and train
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.24, random_state=1)
-u = np.array(X_train.mean())
-s = np.array(X_train.std())
+train_mean = np.array(X_train.mean())
+tran_standard_deviation = np.array(X_train.std())
 
 # Feature Scaling
 sc = StandardScaler()
@@ -111,7 +111,7 @@ for file_name in os.listdir(audio_files_directory)[:12]:
     features = psf.base.fbank(features)[1]
     features = psf.base.logfbank(features)
     features = np.array(features)
-    features = np.array((features[0] - u) / s).reshape((1, 26))
+    features = np.array((features[0] - train_mean) / tran_standard_deviation).reshape((1, 26))
 
     prediction = model.dual_coef_.dot(np.power(model.gamma * model.support_vectors_.dot(features.T), model.degree)) + model.intercept_
 
