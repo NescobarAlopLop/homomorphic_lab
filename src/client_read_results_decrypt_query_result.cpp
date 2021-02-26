@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 		cerr << "Provide path to configurations directory" << endl;
 		cout << "/bin/client_read_results_decrypt_query_result <path to config directory>" << endl;
 		cout << "For example:" << endl;
-		cout << "\"${HOMOMORPHIC_ROOT}\"/bin/client_read_results_decrypt_query_result \"${HOMOMORPHIC_ROOT}\"/example_inputs" << endl;
+		cout << R"("${HOMOMORPHIC_ROOT}"/bin/client_read_results_decrypt_query_result "${HOMOMORPHIC_ROOT}"/example_inputs)" << endl;
 
 		return -1;
 	}

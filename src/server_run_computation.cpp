@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 		cerr << "Provide path to configurations directory" << endl;
 		cout << "/bin/server_run_computation <path to config directory>" << endl;
 		cout << "For example:" << endl;
-		cout << "\"${HOMOMORPHIC_ROOT}\"/bin/server_run_computation \"${HOMOMORPHIC_ROOT}\"/example_inputs" << endl;
+		cout << R"("${HOMOMORPHIC_ROOT}"/bin/server_run_computation "${HOMOMORPHIC_ROOT}"/example_inputs)" << endl;
 
 		return -1;
 	}
