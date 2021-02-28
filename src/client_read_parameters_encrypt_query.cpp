@@ -41,17 +41,18 @@ int main(int argc, char* argv[])
     EncryptionParameters params;
     params.load(parameters_file_stream);
 
-    auto context = SEALContext::Create(params);
+    auto context = SEALContext(params);
 
     KeyGenerator key_generator(context);
-    auto public_key = key_generator.public_key();
+	PublicKey public_key;
+    key_generator.create_public_key(public_key);
     auto secret_key = key_generator.secret_key();
 
     ofstream ofs_secret_key(config_dir_path + "/secret_key.dat", ios::binary);
     secret_key.save(ofs_secret_key);
 
-    auto relin_keys = key_generator.relin_keys_local();         // TODO: switch to non local
-    auto galois_keys = key_generator.galois_keys_local();
+    auto relin_keys = key_generator.create_relin_keys();         // TODO: switch to non local
+    auto galois_keys = key_generator.create_galois_keys();
 
     ofstream ifs_relin(config_dir_path + "/relin.dat", ios::binary);
     ofstream ifs_galois(config_dir_path + "/galois.dat", ios::binary);

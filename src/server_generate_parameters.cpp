@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	for (const auto& value: bit_sizes)
 		std::cout << value << ' ';
 
-    EncryptionParameters encryption_parameters(scheme_type::CKKS);
+    EncryptionParameters encryption_parameters(scheme_type::ckks);
     encryption_parameters.set_poly_modulus_degree(poly_modulus_degree);
     auto coefficient_modulus_degree = CoeffModulus::Create(poly_modulus_degree, bit_sizes);
     encryption_parameters.set_coeff_modulus(coefficient_modulus_degree);

@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	EncryptionParameters parms;
     ifstream ifs_parameters(config_dir_path + "/parameters.dat", ios::binary);
     parms.load(ifs_parameters);
-    auto context = SEALContext::Create(parms);
+    auto context = SEALContext(parms);
 
     /*
     Load back the secret key from sk_stream.

@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     EncryptionParameters encryption_parameters;
     ifstream parameters_file_stream(config_dir_path + "/parameters.dat", ios::binary);
     encryption_parameters.load(parameters_file_stream);
-    auto server_context = SEALContext::Create(encryption_parameters);
+    auto server_context = SEALContext(encryption_parameters);
 
     double scale = pow(x, y);
     Plaintext model_weights_plain_text;

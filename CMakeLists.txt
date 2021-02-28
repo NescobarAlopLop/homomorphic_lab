@@ -3,7 +3,7 @@ project(homomorhpic_lab)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(SEAL 3.5 REQUIRED)
+find_package(SEAL 3.6.2 REQUIRED)
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/include
@@ -44,5 +44,4 @@ add_executable(basic_server_client_example
         ${PROJECT_SOURCE_DIR}/src/basic_example.cpp
         ${PROJECT_SOURCE_DIR}/src/json.hpp
 )
-
 target_link_libraries(basic_server_client_example SEAL::seal)

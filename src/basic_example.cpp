@@ -8,7 +8,7 @@ int main()
     // server code:
     {
 
-        EncryptionParameters encryption_parameters(scheme_type::CKKS);
+        EncryptionParameters encryption_parameters(scheme_type::ckks);
         std::size_t poly_modulus_degree = 8192;
         encryption_parameters.set_poly_modulus_degree(poly_modulus_degree);
 //        auto bit_sizes = {40, 40, 40, 40, 40}; // 84 mb
@@ -27,17 +27,18 @@ int main()
         EncryptionParameters params;
         params.load(parameters_file_stream);
 
-        auto context = SEALContext::Create(params);
+        auto context = SEALContext(params);
 
         KeyGenerator key_generator(context);
-        auto public_key = key_generator.public_key();
+        PublicKey public_key;
+        key_generator.create_public_key(public_key);
         auto secret_key = key_generator.secret_key();
 
         ofstream ofs_secret_key("./secret_key.dat", ios::binary);
         secret_key.save(ofs_secret_key);
 
-        auto relin_keys = key_generator.relin_keys_local();         // TODO: switch to non local
-        auto galois_keys = key_generator.galois_keys_local();
+        auto relin_keys = key_generator.create_relin_keys();         // TODO: switch to non local
+        auto galois_keys = key_generator.create_galois_keys();
 
         ofstream ifs_relin("./relin.dat", ios::binary);
         ofstream ifs_galois("./galois.dat", ios::binary);
@@ -76,7 +77,7 @@ int main()
         EncryptionParameters encryption_parameters;
         ifstream parameters_file_stream("./parameters.dat", ios::binary);
         encryption_parameters.load(parameters_file_stream);
-        auto server_context = SEALContext::Create(encryption_parameters);
+        auto server_context = SEALContext(encryption_parameters);
 
         vector<double> model_weights{50, -3};
         model_weights = {3, 4};
@@ -129,7 +130,7 @@ int main()
         EncryptionParameters parms;
         ifstream ifs_parameters("./parameters.dat", ios::binary);
         parms.load(ifs_parameters);
-        auto context = SEALContext::Create(parms);
+        auto context = SEALContext(parms);
 
         /*
         Load back the secret key from sk_stream.
