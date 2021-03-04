@@ -2,6 +2,11 @@
 This project will run machine learning models on encrypted data.
 It is still in its early stages of development.
 
+In the meanwhile please have a look at python implementation of said project:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NescobarAlopLop/homomorphic_lab/blob/master/notebook/homomorphic_encription_lab.ipynb)
+
+
 # To only run and get the feel of it:
 1. clone the repository: `git clone git@github.com:NescobarAlopLop/homomorhpic_lab.git`
 2. cd into cloned repository `cd homomorhpic_lab`
