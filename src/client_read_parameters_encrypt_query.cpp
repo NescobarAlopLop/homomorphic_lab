@@ -76,10 +76,21 @@ int main(int argc, char* argv[])
 
     double scale = pow(x, y);
     print_line(__LINE__);
+	auto time_start_v2 = std::chrono::high_resolution_clock::now();
     ckks_encoder.encode(user_query, scale, user_query_plain_text);
+	auto time_end_v2 = std::chrono::high_resolution_clock::now();
+	auto time_diff_v2 = std::chrono::duration_cast<std::chrono::microseconds>(time_end_v2 - time_start_v2);
+	std::cout << "encode " << time_diff_v2.count() << endl;
 
     Ciphertext encrypted_user_query;
-    encryptor.encrypt(user_query_plain_text, encrypted_user_query);
+
+	auto time_start_v1 = std::chrono::high_resolution_clock::now();
+	encryptor.encrypt(user_query_plain_text, encrypted_user_query);
+	auto time_end_v1 = std::chrono::high_resolution_clock::now();
+	auto time_diff_v1 = std::chrono::duration_cast<std::chrono::microseconds>(time_end_v1 - time_start_v1);
+	std::cout << "encrypt " << time_diff_v1.count() << endl;
+
+
     ofstream ofs_encrypted_query(config_dir_path + "/encrypted_query.dat", ios::binary);
     encrypted_user_query.save(ofs_encrypted_query);
 }
