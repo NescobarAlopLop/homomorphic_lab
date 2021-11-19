@@ -16,6 +16,8 @@ In the meanwhile please have a look at python implementation of said project:
    
 # Prerequisites:
 - install Microsoft Seal
+- clone the repo
+- run cmake
 
 # Getting started:
 ### Download dataset:
