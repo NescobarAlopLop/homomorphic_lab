@@ -1,0 +1,8 @@
+{
+  "poly_modulus_degree": 8192,
+  "bit_sizes": [60, 40, 40, 60],
+  "scale": {
+    "x": 2,
+    "y": 40
+  }
+}
